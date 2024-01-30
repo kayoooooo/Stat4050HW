@@ -21,18 +21,18 @@
 dday <- 02052024
 # Now write code to find and print the answer for all parts:
 #b The cube root of dday.
-
+print()
 #c The log base 12 of dday.
 
 #d dday modulo 9. (That's the remainder, after dividing by 9. Use the "%%" operator.)
-
+print(dday %% 9)
 #e Is dday greater than 03000000? Use comparison operators and return TRUE or FALSE.
-
+print(dday > 03000000)
 #### Q2.[14 pts. 2 each]
 
 #a  Create the two vectors of numbers alpha = (250, 290, 330,..., 1410)
 #                                     beta  = (2400, 2320, 2240, ..., 80)  
-
+alpha <- (c(1:35) * 40 + 10)[-c(1:5)]
 #b Create a new vector gamma that is the elementwise products of alpha and beta.
 
 #c What is the sum of the elementwise product of the two vectors?
@@ -49,9 +49,10 @@ dday <- 02052024
 #### Q3. [10 pts. 2 each]
 
 #a Set the random number seed to 2024. - No points
-
+set.seed(2024)
 #b Create two vectors, named x and y of standard normal random variables, each of length 100000.
-
+x <- rnorm(100000)
+y <- rnorm(100000)
 #c Create a third vector, called z, containing the square root of the element-wise sum
 #  of the squares of the elements of x and y.
 #  That is, each element in z is the square root of the corresponding x_squared + y_squared
