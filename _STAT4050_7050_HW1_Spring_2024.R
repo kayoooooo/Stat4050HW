@@ -21,29 +21,37 @@
 dday <- 02052024
 # Now write code to find and print the answer for all parts:
 #b The cube root of dday.
-print()
+dday ^ (1/3)
+127.0752
 #c The log base 12 of dday.
-
+log(dday, base = 12)
+5.849048
 #d dday modulo 9. (That's the remainder, after dividing by 9. Use the "%%" operator.)
-print(dday %% 9)
+dday %% 9
+6
 #e Is dday greater than 03000000? Use comparison operators and return TRUE or FALSE.
-print(dday > 03000000)
+dday > 03000000
+FALSE
 #### Q2.[14 pts. 2 each]
 
 #a  Create the two vectors of numbers alpha = (250, 290, 330,..., 1410)
 #                                     beta  = (2400, 2320, 2240, ..., 80)  
 alpha <- (c(1:35) * 40 + 10)[-c(1:5)]
+beta <- seq(2400, 80, -80)
 #b Create a new vector gamma that is the elementwise products of alpha and beta.
-
+gamma = alpha * beta
 #c What is the sum of the elementwise product of the two vectors?
-
+sum(gamma)
+23684000
 #d What is the maximum value in gamma?
-
+max(gamma)
+1051200
 #e What is/are the indices (position in the vector) of the maximum value found in part d?
 # The command which may be helpful here. 
 
 #f How many of the elements of gamma are strictly greater (>) than 520520?
-
+sum(gamma > 520520)
+25
 #g How many of the elements of gamma are strictly (i.e. > and <) between the median and the mean of gamma?
 
 #### Q3. [10 pts. 2 each]
@@ -58,11 +66,13 @@ y <- rnorm(100000)
 #  That is, each element in z is the square root of the corresponding x_squared + y_squared
 
 #d  Find the median of the elements in the z vector. Print the result. 
-
+med = median(z)
+print(med)
 #e Write code to create and store in a variable (vector) the first 100000 terms in the sequence: (no need to print this one)
 # {1/3, 1/9, 1/27, 1/81, 1/243, ... } 
 
 #f Take the sequence in part e and sum all the elements. Find the product of this sum and the median of z?
+
 
 #### Q5. [10 pts. 2 each] A political polling company asked voters:
 #### "How likely are you to vote in the next election?" 
@@ -85,12 +95,14 @@ raw.scores <- c(5, 3, 1, 4, 4, 5, 2, 1, 1, 5,
 
 #a Write code to create and store a logical vector that takes on the value TRUE if
 #  the raw score was 3, 4, or 5, and FALSE otherwise.	You dont have to use an"if" command. You can manually type in
-
+bool.scores <- c(raw.scores > 2)
 #b Using the logical vector from part a, replace the values 1 and 2 in raw.scores with the
 #  value 1 and the values 3, 4, and 5 with the value 5. You can do this in multiple steps if you want.
 #  Call this new numeric vector "mod.scores". At this point
 #  mod.scores should only contain the values 1 and 5.
-
+mod.scores <- raw.scores
+mod.scores[bool.scores] <- 5
+mod.scores[!bool.scores] <- 1
 #c Create and store from "mod.scores" an ordered factor variable from the modified data with the 
 #  labels "Inactive", and "Active".
 #  "Inactive" should be the lower of the two levels in the ordered factor. 
@@ -105,7 +117,7 @@ raw.scores <- c(5, 3, 1, 4, 4, 5, 2, 1, 1, 5,
 #a What is a key difference between the list extraction operators [ and $?
 
 #b Reset the random number seed to 2024. 
-
+set.seed(2024)
 # Paste the following code into R
 
 my.list <- list(X = c(sample(x=100,size=100,replace=TRUE)), B = matrix(data=rnorm(36),ncol=6), 
@@ -113,10 +125,13 @@ my.list <- list(X = c(sample(x=100,size=100,replace=TRUE)), B = matrix(data=rnor
                             BETA = matrix(data = rnorm(64),ncol=8)))
 
 #c Write code to extract and print the value of the [2,4] element in the B matrix.
-
+x <- my.list$B[2,4]
+print(x)
+.7303825
 #d Write code to extract and find the sum of all of the elements in the 
 #  matrix product (%*%) of the two matrices ALPHA and BETA.
-
+sum(apply(my.list$ZETA$ALPHA %*% my.list$ZETA$BETA, sum, MARGIN = 1))
+514.5178
 #e Rename the element called "B", as "Y", and paste both the command you used 
 #  and the output from the names() command to show that you did it successfully.   
 
@@ -124,25 +139,28 @@ my.list <- list(X = c(sample(x=100,size=100,replace=TRUE)), B = matrix(data=rnor
 ## For this question, no need to print the resulting matrices unless specifically asked for.
 
 #a Set the random number seed to 2024 again. - No points
-
+set.seed(2024)
 #b Create a 1000 x 1000 matrix of standard normals (mean = 0, sd = 1). (No need to print the matrix)
-
+matr <- matrix( rnorm(1000000), nrow = 1000, ncol = 1000)
 #c Store the transpose of the matrix created in part b (the transpose swaps the rows and columns).  
-
+tran <- t(matr)
 #d  Multiple the original matrix (on the left) by its transpose (on the right) 
 #  (use, matrix multiplication, "%*%", not element-wise) and store the result.
-
+prod = matr %*% tran
 #e  Find and store the inverse of the matrix created in part d.  
-
+inv = solve(prod)
 #f  Find and print the sum of the elements of the leading diagonal (top left to bottom right)
 #   of the inverse matrix. (The command "diag" is very useful here).
-
+sdia = sum(diag(inv))
+print(sdia)
+18681.4
 #g Using the apply function, store the mean of each row of the original matrix from part b in a vector .
 # (No need to print the vector)
-
+vec <- apply(matr, FUN=mean, MARGIN=1)
 #h Find and print the standard deviation (R command "sd") of these 10000 row means.
 #  What you have just done is empirically estimate the standard error of the sample mean.
-
+sd(vec)
+0.0319525
 #### For Q8 below, download (using 'load' or 'Open' menu function)the .Rdata file called "hw1_spring_2024.Rdata" available on Canvas and read it in to R using R-studio.
 #### This will bring all the objects you need for the homework straight into R-studio.
 
