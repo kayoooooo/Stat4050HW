@@ -48,11 +48,14 @@ max(gamma)
 1051200
 #e What is/are the indices (position in the vector) of the maximum value found in part d?
 # The command which may be helpful here. 
-
+which.max(gamma)
+13
 #f How many of the elements of gamma are strictly greater (>) than 520520?
 sum(gamma > 520520)
 25
 #g How many of the elements of gamma are strictly (i.e. > and <) between the median and the mean of gamma?
+sum (gamma < median(gamma) & gamma > mean(gamma))
+3
 
 #### Q3. [10 pts. 2 each]
 
@@ -64,15 +67,18 @@ y <- rnorm(100000)
 #c Create a third vector, called z, containing the square root of the element-wise sum
 #  of the squares of the elements of x and y.
 #  That is, each element in z is the square root of the corresponding x_squared + y_squared
-
+z = sqrt(x^2 + y^2)
 #d  Find the median of the elements in the z vector. Print the result. 
 med = median(z)
 print(med)
+1.176623
 #e Write code to create and store in a variable (vector) the first 100000 terms in the sequence: (no need to print this one)
 # {1/3, 1/9, 1/27, 1/81, 1/243, ... } 
-
+avec <- (1/3) ^ c(1:100000)
 #f Take the sequence in part e and sum all the elements. Find the product of this sum and the median of z?
-
+sum3 <- sum(avec)
+sum3 * med
+.5883116
 
 #### Q5. [10 pts. 2 each] A political polling company asked voters:
 #### "How likely are you to vote in the next election?" 
@@ -107,15 +113,16 @@ mod.scores[!bool.scores] <- 1
 #  labels "Inactive", and "Active".
 #  "Inactive" should be the lower of the two levels in the ordered factor. 
 #  Hint: See Class 1 slides. 
-
+mod.scores.factor <- factor(x=mod.scores, levels = c(1,5), labels = c("Inactive", "Active"))
 #d  Summarize the new data with the "table" command. Store the table and paste it below.
-
+ftable <- table(mod.scores.factor)
+ftable
 #e  Write code to identify and only print the new level that occurred most frequently and how often it occurred.
 
 #### Q6. [12 pts. 2 each for a-c; 3 each for d,e]
 
 #a What is a key difference between the list extraction operators [ and $?
-
+$ returns the original object in the list, whereas [] returns a list containing the object.
 #b Reset the random number seed to 2024. 
 set.seed(2024)
 # Paste the following code into R
@@ -134,7 +141,8 @@ sum(apply(my.list$ZETA$ALPHA %*% my.list$ZETA$BETA, sum, MARGIN = 1))
 514.5178
 #e Rename the element called "B", as "Y", and paste both the command you used 
 #  and the output from the names() command to show that you did it successfully.   
-
+names(my.list)[2] <- "Y"
+names(my.list)
 #### Q7. [21 pts; 3 each]
 ## For this question, no need to print the resulting matrices unless specifically asked for.
 
@@ -167,24 +175,36 @@ sd(vec)
 #### Q8 [23 pts; 3 each for a-f; 5 for g]
 
 #a. What is a key difference between a list and a data frame?
-
+A list is one-dimensional, whereas a dataframe is two-dimensional 
+(by nature. A list can be two-dimensional, but must be because the user wanted it so.)
 # You will have read in a data frame called "waystar.df" which contains information on the price of Waystar Royco stock for 2018-19.
 
 #b How many rows and columns does this data frame have? (Write code to extract the answer).
-
+length(waystar.df)
+length(waystar.df$Date)
+6 columns
+252 rows
 #c What was Waystar Royco's lowest daily trading volume and on what day did this occur? Show your code that identifies the min volume day. 
 #  The function "which.min" can also be very useful if you want to try something new.
-
+min(waystar.df$Volume)
+which.min(waystar.df$Volume)
+6931700
+249
 #d Create and add to the data frame a new column called "Return" that calculates the intraday return
 #  of Waystar Royco stock. The intraday Return is defined as (Closing Price - Opening Price). Closing Price is represented by the Price column.
 #  Use the "head" function to print the first 5 rows of the data frame that now includes the Return variable.
-
+waystar.df$Return <- waystar.df$Price - waystar.df$Open
+head(waystar.df)
 #e. What was Waystar Royco's average daily return over this time period? 
-
+mean(waystar.df$Return)
+-.1051162
 #f. What was the standard deviation of Waystar Royco's daily return over this time period (use the "sd" function)?
-
+sd(waystar.df$Return)
+4.644257
 #g. There is a column in the data frame called "MonthOfYear". It has been entered numerically, 1 for January etc.
 #   Turn "MonthOfYear" into an *unordered* factor (with labels "Jan", "Feb" etc.) 
 #   and overwrite the old MonthOfYear variable in the data frame.
 #   Show your code that creates and inserts the factor month-of-year variable.
 #  Hint: See Class 1 slides. 
+waystar.df$MonthOfYear = factor(x = waystar.df$MonthOfYear, levels = c(1:12), labels = c("Jan", "Feb", "Mar", "Apr","May","Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"), ordered = FALSE)
+head(waystar.df)
