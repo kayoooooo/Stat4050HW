@@ -22,19 +22,25 @@
 #   rows of hr.data with an odd-numbered EmployeeID,
 #   and a data frame called "hr.data.test" consisting of all rows with even numbered EmployeeID.
 #   You do not need to print anything yet.
-
+hr.data = read.csv("./STAT4050/hr_data.csv")
+hr.data.train = hr.data[hr.data$EmployeeId %% 2 == 0, ]
+hr.data.test = hr.data[hr.data$EmployeeId %% 2 != 0, ]
 #b  Count how many employees in hr.data.train have volturn equal to 1 and how many have volturn
 #   equal to 0. Include your code and result.
+nrow(hr.data.train[hr.data.train$volturn == 1,])
+nrow(hr.data.train[hr.data.train$volturn == 0,])
 
+303
+2520
 #c  Using the hr.data.train data frame, run a logistic regression of volturn 
 #   against age, gender and salary, and store the resulting *output object* of the regression as a new variable.
-
+hdt.glm = glm(volturn ~ age + Gender + salary, data = hr.data.train)
 #d  Write code to extract and print the coefficient and significance level of salary. 
-
+hdt.glm$coefficients["salary"]
 #e  Write code to predict the *probabilities* of volturn being 1 for all rows in hr.data.test,
 #   and store them in a vector named "predicted.prob". Do not print anything.   
 #   (Hint: ?predict.glm, and study the "type" parameter.)
-
+predicted.prob = predict(hdt.glm, type = "response")
 #f  Now we convert the predicted probabilities into actual predictions for volturn (0 or 1), 
 #   on the basis of whether the probability is greater than 0.15 (1 if >= 0.15, 0 if < 0.15). Store these predicted values
 #   in a vector named "predicted.volturn". Do not print anything.
