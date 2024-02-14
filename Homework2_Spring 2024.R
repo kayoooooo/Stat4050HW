@@ -23,27 +23,35 @@
 #   and a data frame called "hr.data.test" consisting of all rows with even numbered EmployeeID.
 #   You do not need to print anything yet.
 hr.data = read.csv("./STAT4050/hr_data.csv")
-hr.data.train = hr.data[hr.data$EmployeeId %% 2 == 0, ]
-hr.data.test = hr.data[hr.data$EmployeeId %% 2 != 0, ]
+hr.data.train = hr.data[hr.data$EmployeeId %% 2 == 1, ]
+hr.data.test = hr.data[hr.data$EmployeeId %% 2 == 0, ]
 #b  Count how many employees in hr.data.train have volturn equal to 1 and how many have volturn
 #   equal to 0. Include your code and result.
 nrow(hr.data.train[hr.data.train$volturn == 1,])
-nrow(hr.data.train[hr.data.train$volturn == 0,])
+# [1] 324
 
-303
-2520
+nrow(hr.data.train[hr.data.train$volturn == 0,])
+# [1] 2500
+
+
 #c  Using the hr.data.train data frame, run a logistic regression of volturn 
 #   against age, gender and salary, and store the resulting *output object* of the regression as a new variable.
-hdt.glm = glm(volturn ~ age + Gender + salary, data = hr.data.train)
+hdt.glm = glm(volturn ~ age + Gender + salary, data = hr.data.train, family = "binomial")
 #d  Write code to extract and print the coefficient and significance level of salary. 
-hdt.glm$coefficients["salary"]
+summary(hdt.glm)$coefficients["salary", c(1,4)]
+#     Estimate     Pr(>|z|)
+# 2.118997e-06 4.611761e-01
+
+
 #e  Write code to predict the *probabilities* of volturn being 1 for all rows in hr.data.test,
 #   and store them in a vector named "predicted.prob". Do not print anything.   
 #   (Hint: ?predict.glm, and study the "type" parameter.)
-predicted.prob = predict(hdt.glm, type = "response")
+predicted.prob = predict(hdt.glm, newdata=hr.data.test, type = "response")
 #f  Now we convert the predicted probabilities into actual predictions for volturn (0 or 1), 
 #   on the basis of whether the probability is greater than 0.15 (1 if >= 0.15, 0 if < 0.15). Store these predicted values
 #   in a vector named "predicted.volturn". Do not print anything.
+
+predicted.volturn <- as.numeric(predicted.prob >= 0.15)
 
 #g  We would like to evaluate the quality of predicted.volturn. 
 #   Read https://en.wikipedia.org/wiki/Confusion_matrix and write R code to compute
@@ -52,6 +60,17 @@ predicted.prob = predict(hdt.glm, type = "response")
 #   The placement of TP, FP, FN, TN in your matrix must be identical to the Wikipedia page.
 #   It is probably easier to calculate these four numbers one by one and then fill the matrix.
 #   For the definitions of each of these 4 terms, please see the Wikipedia page cancer example - which is pretty intuitive. 
+TP = sum(predicted.volturn + hr.data.test$volturn == 2)
+FP = sum(predicted.volturn == 1 & hr.data.test$volturn == 0)
+FN = sum(predicted.volturn == 0 & hr.data.test$volturn == 1)
+TN = sum(predicted.volturn + hr.data.test$volturn == 0)
+confusion.matrix.volturn = matrix(c(TP,FN,FP,TN), nrow = 2, byrow = TRUE)
+confusion.matrix.volturn
+
+#       [,1] [,2]
+# [1,]   58  245
+# [2,]  339 2181
+
 
 ##### Q2. 30 points
 #### When fitting regression models (lm or glm) skewed predictor (x-variables) can give rise to highly leveraged
@@ -62,17 +81,46 @@ predicted.prob = predict(hdt.glm, type = "response")
 # The definition of skewness we will use is in the document "skewness.pdf" on Canvas.
 # Call your function "skewness" and cut and paste your function here.
 # As a test case skewness(c(1:10,50)) should report 3.053661. 
-
+skewness <- function(vec) {
+  vmean <- mean(vec)
+  vdev <- sd(vec)
+  n <- length(vec)
+  skew <- 0
+  for (x in vec) {
+    skew <- skew + ((x - vmean)/vdev) ** 3
+  }
+  return ((n / (n-1) / (n-2)) * skew)
+}
 
 #b. Use your skewness function on the following vector and report the result:
 
 my.vec <- c(0.538,  0.990,  0.531, -2.015,  0.015,  0.262, -0.342, -0.804,  1.501,  1.934)
+skewness(my.vec)
+
+# [1] -.5781586
 
 
 #c. Refine your skewness function, so that if it is called with anything other than a numeric argument
 # it stops and produces an informative error message. Use the "if", "is.numeric" and "stop" functions to achieve this goal.
 # Cut and paste your refined function here and show that the function works as intended by passing the following vector as input
 # c("Adam","Eve")
+skewness <- function(vec) {
+  if (!is.numeric(vec)) {
+    stop("Non numeric passed")
+  }
+  vmean <- mean(vec)
+  vdev <- sd(vec)
+  n <- length(vec)
+  skew <- 0
+  for (x in vec) {
+    skew <- skew + ((x - vmean)/vdev) ** 3
+  }
+  return (n / (n-1) / (n-2)) 
+}
+
+skewness(c("Adam", "Eve"))
+
+# Error in skewness(c("Adam", "Eve")) : Non numeric passed
 
 
 ##### Q3. 40 points
@@ -87,7 +135,12 @@ my.vec <- c(0.538,  0.990,  0.531, -2.015,  0.015,  0.262, -0.342, -0.804,  1.50
 # a. Write an R function called "my.hurricane.calc" that takes in the following inputs:
 #   1. a dataframe with 'US','UK','JP' as the 3 column names and the number of hurricanes as the data in the rows
 #   2. a number (call it "Max_H") for the maximum limit of hurricanes that your business can sustain without going under.
-
+my.hurricane.calc <- function(dat, Max_H) {
+  total.hurricanes <- dat$US + dat$UK + dat$JP
+  too.many <- total.hurricanes > Max_H
+  return(sum(too.many) / length(total.hurricanes))
+  
+}
 #   It should output a probability of your business going under, based on the dataframe and the Max_H threshold
 #   
 
@@ -105,14 +158,37 @@ my.vec <- c(0.538,  0.990,  0.531, -2.015,  0.015,  0.262, -0.342, -0.804,  1.50
 # b. Set seed to 2024 Create a data frame called my.data.hurricane with 100000 replicates of hurricane counts in each country next 
 #  year. Do this for all 3 countries. This data frame should have a dimension of 100000 X 3 and the column names should be
 # 'US', 'JP', 'UK'. Each column data should be generated with the respective country's Poisson mean. 
+set.seed(2024)
+us_dat <- rpois(100000, 1.75)
+uk_dat <- rpois(100000, 1.1)
+jp_dat <- rpois(100000, 3)
+my.data.hurricane <- data.frame(US = us_dat, UK = uk_dat, JP = jp_dat)
+
+dim(my.data.hurricane)
+# [1] 100000 3
+
 
 #   c. Using this data, estimate the probability of your business going under if the maximum number of total hurricanes you can sustain 
 #      next year across all your business locations combined is:
 #   1. 10 hurricanes
 #   2. 5 hurricanes
+prob.10 <- my.hurricane.calc(my.data.hurricane, 10)
+prob.5 <- my.hurricane.calc(my.data.hurricane, 5)
+prob.10
+# [1] .03642
+prob.5
+# [1] .52947
+
 
 # d. Compute the amount of time in seconds it takes you to perform the calculation for Question C.1 (10 hurricanes)
 #    Output this answer in a neatly formatted sentence that reads as follows:
 #    Eg: "I took a total of 0.5 seconds to compute the probability of going bankrupt if > 10 hurricanes hit next year"
 #    Both the compute time (0.5 seconds) and max number of hurricanes (10) should be assigned via variables in a paste statement. 
+start <- Sys.time()
+n <- 10
+prob <- my.hurricane.calc(my.data.hurricane, n)
+end <- Sys.time()
+runtime = round(end-start, 4)
+print(paste("I took a total of ", runtime, "seconds to compute the probability of going bankrupt if > ", n, " hurricanes hit next year"))
 
+# [1] "I took a total of  0.0028 seconds to compute the probability of going bankrupt if >  10  hurricanes hit next year"
