@@ -89,6 +89,18 @@ mainthist <- function(numdays = 365, maintlength = 7, meanfail = 56) {
   return (maint)
 }
 
+mainthist <- function(numdays = 365, maintlength = 7, meanfail = 56) {
+  maint <- c()
+  while (length(maint) < numdays) {
+    fail <- ceiling(rexp(1, rate = 1 / meanfail))
+    maint <- c(maint, rep(0, fail))
+    maint <- c(maint, rep(1, maintlength))
+  }
+  maint <- maint[1:numdays]
+  return(maint)
+}
+
+
 # d. Using a for loop, populate the helihist matrix for all 20 helicopters. Show your code and print out the last row of the helihist matrix. (2) 
 for (i in 1:20) {
   helilist[i,] = mainthist()
@@ -117,13 +129,12 @@ maint
 #[276] 2 3 4 4 4 4 4 3 2 1 1 1 1 2 3 5 5 4 4 4 3 2 0 2 3 3 3 3 3 3 1 0 0 0 0 0 0 0 0 0 0 0 1 2 2 3 3 3 3 4 4 4 3 3 3
 #[331] 3 1 0 0 1 2 2 2 2 2 2 1 1 1 1 1 1 2 2 1 1 1 2 2 1 1 1 1 1 0 0 0 0 0 0
 
-
 # f. Create a variable (flag) that takes on the value 1 if at any point in the year the number of out-of-action helicopters is greater
 #    than or equal to 6, and takes on the value 0 otherwise. (The "ifelse" command is a nice way to do this.). Show your code and
 #    print the value of the flag variable. (3)
 flag <- ifelse(max(maint>=6), 1, 0)
-
-# [1] 1
+flag
+# [1] 0
 
 
 #Q2. With all the above pieces in place, you can now estimate the probability that at some point in the year at least 6 
@@ -149,11 +160,14 @@ for (i in 1:numits) {
   flag <- ifelse(max(maint>=6), 1, 0)
   results[i] <- flag
 }
-prob <- mean(results)
-prob
 
 #e. After running the for loop, what is your estimate of the probability that at least 6 helicopters are out-of-action
 # at some point during the year? Make sure you print this value and paste the output below. (8)
+
+prob <- mean(results)
+prob
+
+# [1] .916
 
 
 ## ------------------------------------------------------------------------
@@ -172,6 +186,10 @@ outpatient$SchedLag <- (outpatient$ApptDate - outpatient$SchedDate)
 outpatient$SchedLag <- as.numeric(outpatient$SchedLag)/(60 * 60 * 24) 
 
 summary(outpatient$SchedLag)
+
+# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# -11.00    8.00   23.00   33.48   42.00  371.00 
+
 
 #3a. Delete all rows with SchedLag values <0 and > 300 (2)
 outpatient <- outpatient[(outpatient$SchedLag >= 0 & outpatient$SchedLag <= 300),]
@@ -242,7 +260,7 @@ library(boot)
 beta_coef <- function(data, index) {
   bootstrap_data <- data[index,]
   model <- lm(SchedLag ~ Age, data = bootstrap_data)
-  slope <- coef(model)["Age"]
+  slope <- coef(model)[[2]]
   return(slope)
 }
 
@@ -256,12 +274,17 @@ beta_coef <- function(data, index) {
 set.seed(2024)
 
 boot_results <- boot(dboot, beta_coef, R = 100)
-conf_interval <- boot.ci(boot_results, type = "perc")$percent[,4:5]
+conf_interval <- boot.ci(boot_results, type = "basic")
 hist(boot_results$t, main = "Histogram", xlab = "Beta Coefficient")
 
 qqnorm(boot_results$t)
 qqline(boot_results$t)
 
+conf_interval
+
+# Intervals : 
+# Level      Basic         
+# 95%   (-0.2762,  0.0945 )
 
 #4e. 
 # Create an animation that shows the 
@@ -269,24 +292,12 @@ qqline(boot_results$t)
 # Please capture a screenshot of the animation as 
 # a JPG or PDF file at the point when all 100 points are shown (6)
 library(animation)
-estimate_beta <- function(n) {
-  x <- rnorm(n)
-  y <- 0.5 * x + rnorm(n)
-  beta_coef <- cov(x, y) / var(x)
-  return(beta_coef)
-}
-num_estimates <- 100
-plot.new()
-plot.window(xlim = c(1, num_estimates), ylim = c(-0.5, 0.5),
-            xlab = "Estimate Number", ylab = "Beta Coefficient",
-            main = "Estimation of Beta Coefficient")
-beta_estimates <- numeric(num_estimates)
-ani.record(reset = TRUE)
-for (i in 1:num_estimates) {
-  beta_estimates[i] <- estimate_beta(100)
-  points(i, beta_estimates[i], pch = 19, col = "blue")
+plot(x=1:100, y = boot_results$t, type = "n")
+for (i in 1:100) {
+  points(i, boot_results$t[i], pch = 19, cex = 2,col=2)
   ani.record()
 }
 
 saveHTML(ani.replay(), img.name = "beta_coef")
+ani.record(reset = TRUE)
 
